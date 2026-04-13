@@ -1,6 +1,14 @@
 const express = require("express");
+const mysql = require("mysql2/promise");
 
 const server = express();
+
+const connPool = mysql.createPool({
+    host: "localhost",
+    user:"user1",
+    password: "",
+    database: "schoolSimple"
+});
 
 const PORT = 3000;
 
@@ -39,6 +47,12 @@ server.get("/students", (req, res, next) => {
     res.json(students.filter((student) => student.age < ageLimit));
 })
 
-server.listen (PORT, () => {
+server.listen (PORT, async () => {
+    try{
+        const connection = await connPool.getConnection();
+        console.log("Connection successful");
     console.log(`Server is running!!! on port : ${PORT}`)
-})
+    } catch (error) {
+        console.error(error);
+    }
+});
