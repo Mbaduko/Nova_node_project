@@ -1,13 +1,16 @@
 const express = require("express");
 const mysql = require("mysql2/promise");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const server = express();
 
 const connPool = mysql.createPool({
-    host: "localhost",
-    user:"user1",
-    password: "",
-    database: "schoolSimple"
+    host: process.env.DB_HOST,
+    user:process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
 const PORT = 3000;
@@ -51,7 +54,7 @@ server.listen (PORT, async () => {
     try{
         const connection = await connPool.getConnection();
         console.log("Connection successful");
-    console.log(`Server is running!!! on port : ${PORT}`)
+        console.log(`Server is running!!! on port : ${PORT}`)
     } catch (error) {
         console.error(error);
     }
