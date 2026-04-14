@@ -24,12 +24,20 @@ server.route("/").get((req, res, next) => {
     res.send("Hello tethjygyu")
 })
 
-server.post("/add", (req, res, next)=> {
-    const inputs = req.body;
-    students.push(inputs);
-
-    // console.log(students);
-    res.json(inputs);
+server.post("/add", async (req, res, next)=> {
+    try{
+        const inputs = req.body;
+        const [results] = await connPool.execute("INSERT INTO student (name, age) VALUES(?, ?)", [inputs.name, inputs.age]);
+        res.json({
+            message: "Byaciyemo",
+            userId: results.insertId
+        });
+    } catch(error) {
+        console.error(error);
+        res.json({
+            message: "Error adding new student",
+        })
+    }
 })
 
 server.put("/students/:name", (req, res, next) => {
@@ -43,17 +51,26 @@ server.put("/students/:name", (req, res, next) => {
     });
 })
 
-server.get("/students", (req, res, next) => {
-    const ageLimit = req.query.ageLimit;
-    if(!ageLimit)
-        res.json(students)
-    res.json(students.filter((student) => student.age < ageLimit));
+server.get("/students", async (req, res, next) => {
+    try {
+        const [results] = await connPool.execute("select * from student");
+        res.json({
+            message:"Students fetched successfully",
+            data: results
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({
+            message: "Error while fetching students"
+        })
+        
+    }
 })
 
 server.listen (PORT, async () => {
     try{
         const connection = await connPool.getConnection();
-        console.log("Connection successful");
+        console.log("Connection successfu");
         console.log(`Server is running!!! on port : ${PORT}`)
     } catch (error) {
         console.error(error);
